@@ -4,7 +4,6 @@
 package org.brunovolpato.calcite.learn;
 
 import java.sql.*;
-
 import org.apache.calcite.jdbc.CalciteConnection;
 
 public class L05_CalciteSQLOverSQLite {
@@ -18,7 +17,8 @@ public class L05_CalciteSQLOverSQLite {
             "jdbc:calcite:model=" + L04_RelBuilder.class.getResource("/model.json").getFile());
     CalciteConnection calciteConnection = connection.unwrap(CalciteConnection.class);
 
-    String sql = "SELECT p.*, s.\"salary\" FROM \"Person\" p LEFT JOIN \"Salary\" s ON p.\"position\" = s.\"position\" WHERE \"age\" > 30";
+    String sql =
+        "SELECT p.*, s.\"salary\" FROM \"Person\" p LEFT JOIN \"Salary\" s ON p.\"position\" = s.\"position\" WHERE \"age\" > 30";
 
     // Execute SQL queries
     try (Statement statement = calciteConnection.createStatement();

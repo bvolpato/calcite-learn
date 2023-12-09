@@ -4,19 +4,14 @@
 package org.brunovolpato.calcite.learn;
 
 import java.sql.*;
-
-import org.apache.calcite.adapter.jdbc.JdbcSchema;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.rel.core.JoinRelType;
 import org.apache.calcite.rel.rel2sql.RelToSqlConverter;
-import org.apache.calcite.rel.rel2sql.SqlImplementor;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlDialect;
-import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.dialect.CalciteSqlDialect;
 import org.apache.calcite.tools.Frameworks;
@@ -53,7 +48,6 @@ public class L06_CalciteRelOverSQLite {
             .build();
     SqlDialect dialect = CalciteSqlDialect.DEFAULT;
     SqlNode sqlNode = new RelToSqlConverter(dialect).visitRoot(node).asStatement();
-
 
     System.out.println("Parsed: " + sqlNode);
     System.out.println();

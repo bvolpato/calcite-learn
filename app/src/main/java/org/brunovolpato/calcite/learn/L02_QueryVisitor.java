@@ -46,7 +46,7 @@ public class L02_QueryVisitor {
 
     @Override
     public Void visit(SqlNodeList nodeList) {
-       System.out.println("SqlNodeList: " + nodeList);
+      System.out.println("SqlNodeList: " + nodeList);
       return super.visit(nodeList);
     }
 
