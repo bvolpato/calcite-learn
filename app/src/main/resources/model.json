@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "defaultSchema": "schema",
+  "schemas": [
+    {
+      "type": "custom",
+      "name": "schema",
+      "factory": "org.apache.calcite.adapter.jdbc.JdbcSchema$Factory",
+      "operand": {
+        "jdbcUser": "",
+        "jdbcPassword": "",
+        "jdbcUrl": "jdbc:sqlite:/home/bvolpato/githubworkspace/calcite-learn/app/src/main/resources/hr.sqlite",
+        "jdbcDriver": "org.sqlite.JDBC"
+      },
+      "tables": [
+      ]
+    }
+  ]
+}
