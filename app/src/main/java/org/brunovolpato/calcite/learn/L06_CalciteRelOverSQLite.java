@@ -7,6 +7,7 @@ import java.sql.*;
 
 import org.apache.calcite.adapter.jdbc.JdbcSchema;
 import org.apache.calcite.jdbc.CalciteConnection;
+import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.rel.core.JoinRelType;
@@ -52,6 +53,14 @@ public class L06_CalciteRelOverSQLite {
             .build();
     SqlDialect dialect = CalciteSqlDialect.DEFAULT;
     SqlNode sqlNode = new RelToSqlConverter(dialect).visitRoot(node).asStatement();
+
+
+    System.out.println("Parsed: " + sqlNode);
+    System.out.println();
+
+    System.out.println("Plan: " + RelOptUtil.toString(node));
+
+    System.out.println();
 
     // Execute SQL queries
     String sql = sqlNode.toSqlString(dialect).getSql();
