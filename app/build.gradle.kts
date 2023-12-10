@@ -26,6 +26,10 @@ dependencies {
     implementation("org.apache.calcite:calcite-core:1.36.0")
     implementation("org.xerial:sqlite-jdbc:3.44.0.0")
 
+    // Spark
+    implementation("org.apache.spark:spark-core_2.13:3.5.0")
+    implementation("org.apache.spark:spark-sql_2.13:3.5.0")
+
 
     implementation("com.google.guava:guava:32.1.1-jre")
 
