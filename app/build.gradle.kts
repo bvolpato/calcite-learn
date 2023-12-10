@@ -17,6 +17,10 @@ dependencies {
     // Arrow
     implementation("org.apache.arrow:arrow-vector:14.0.1")
     implementation("org.apache.arrow:arrow-memory-netty:14.0.1")
+    implementation("org.apache.arrow:arrow-algorithm:14.0.1")
+    implementation("org.apache.arrow:arrow-dataset:14.0.1")
+    implementation("io.substrait:core:0.22.0")
+    implementation("io.substrait:isthmus:0.22.0")
 
     // Calcite
     implementation("org.apache.calcite:calcite-core:1.36.0")
@@ -49,7 +53,7 @@ tasks.withType<JavaExec> {
 
 spotless {
     java {
-        googleJavaFormat()
+        googleJavaFormat("1.18.1")
         formatAnnotations()
     }
 }

@@ -3,7 +3,6 @@ package org.bvolpato.query.arrow;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.IntVector;
-import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.util.TransferPair;
 
 public class L02_VectorSlices {

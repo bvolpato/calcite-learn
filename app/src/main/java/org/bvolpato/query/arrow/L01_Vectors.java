@@ -1,5 +1,6 @@
 package org.bvolpato.query.arrow;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.FieldVector;
@@ -11,8 +12,6 @@ import org.apache.arrow.vector.dictionary.Dictionary;
 import org.apache.arrow.vector.dictionary.DictionaryEncoder;
 import org.apache.arrow.vector.types.pojo.ArrowType;
 import org.apache.arrow.vector.types.pojo.DictionaryEncoding;
-
-import java.nio.charset.StandardCharsets;
 
 public class L01_Vectors {
 
