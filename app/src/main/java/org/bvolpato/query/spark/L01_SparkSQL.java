@@ -23,16 +23,19 @@ import org.apache.spark.sql.SparkSession;
 
 // https://spark.apache.org/docs/latest/sql-getting-started.html
 public class L01_SparkSQL {
+
+  private static final String BASE_DIR = System.getProperty("user.home");
+
   public static void main(String[] args) {
     SparkSession spark =
         SparkSession.builder().appName("Java Spark").master("local[*]").getOrCreate();
 
     Dataset<Row> nations =
-        spark.read().parquet("file:///home/bvolpato/Downloads/tpch/nation.parquet");
+        spark.read().parquet("file://" + BASE_DIR + "/Downloads/tpch/nation.parquet");
     nations.show();
 
     Dataset<Row> customers =
-        spark.read().parquet("file:///home/bvolpato/Downloads/tpch/customer.parquet");
+        spark.read().parquet("file://" + BASE_DIR + "/Downloads/tpch/customer.parquet");
     customers.show(10);
 
     nations.createOrReplaceTempView("nation");

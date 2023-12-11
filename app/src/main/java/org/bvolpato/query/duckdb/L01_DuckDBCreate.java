@@ -3,6 +3,9 @@ package org.bvolpato.query.duckdb;
 import java.sql.*;
 
 public class L01_DuckDBCreate {
+
+  private static final String BASE_DIR = System.getProperty("user.home");
+
   public static void main(String[] args) throws ClassNotFoundException, SQLException {
     Class.forName("org.duckdb.DuckDBDriver");
     // Connection conn = DriverManager.getConnection("jdbc:duckdb:");
@@ -23,12 +26,12 @@ public class L01_DuckDBCreate {
     }
 
     stmt.execute(
-        "CREATE TABLE IF NOT EXISTS nation  AS SELECT * FROM read_parquet('/home/bvolpato/Downloads/tpch/nation.parquet')");
+        "CREATE TABLE IF NOT EXISTS nation AS SELECT * FROM read_parquet('" + BASE_DIR + "/Downloads/tpch/nation.parquet')");
     stmt.execute(
-        "CREATE TABLE IF NOT EXISTS customer  AS SELECT * FROM read_parquet('/home/bvolpato/Downloads/tpch/customer.parquet')");
+        "CREATE TABLE IF NOT EXISTS customer AS SELECT * FROM read_parquet('" + BASE_DIR + "/Downloads/tpch/customer.parquet')");
     stmt.execute(
-        "CREATE TABLE IF NOT EXISTS lineitem  AS SELECT * FROM read_parquet('/home/bvolpato/Downloads/tpch/lineitem.parquet')");
+        "CREATE TABLE IF NOT EXISTS lineitem AS SELECT * FROM read_parquet('" + BASE_DIR + "/Downloads/tpch/lineitem.parquet')");
     stmt.execute(
-        "CREATE TABLE IF NOT EXISTS orders  AS SELECT * FROM read_parquet('/home/bvolpato/Downloads/tpch/orders.parquet')");
+        "CREATE TABLE IF NOT EXISTS orders AS SELECT * FROM read_parquet('" + BASE_DIR + "/Downloads/tpch/orders.parquet')");
   }
 }

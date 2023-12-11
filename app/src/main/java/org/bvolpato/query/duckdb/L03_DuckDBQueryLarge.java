@@ -25,7 +25,7 @@ public class L03_DuckDBQueryLarge {
             (DuckDBResultSet)
                 stmt.executeQuery(
                     """
-                    SELECT l_orderkey, l_linenumber FROM lineitem LIMIT 1000
+                    SELECT l_orderkey, l_linenumber FROM lineitem LIMIT 10000
                     """);
         RootAllocator allocator = new RootAllocator()) {
 

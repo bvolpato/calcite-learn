@@ -34,8 +34,9 @@ dependencies {
     implementation("org.apache.spark:spark-sql_2.13:3.5.0")
 
 
+    // Misc
     implementation("com.google.guava:guava:32.1.1-jre")
-
+    implementation("org.brunocvcunha.inutils4j:inutils4j:0.8")
     testImplementation("junit:junit:4.13.2")
 }
 
