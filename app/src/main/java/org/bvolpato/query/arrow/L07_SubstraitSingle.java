@@ -22,8 +22,10 @@ import org.apache.calcite.sql.parser.SqlParseException;
 
 public class L07_SubstraitSingle {
 
+  private static final String BASE_DIR = System.getProperty("user.home");
+
   public static void main(String[] args) {
-    String uri = "file:///home/bvolpato/Downloads/nation.parquet";
+    String uri = "file://" + BASE_DIR + "/Downloads/tpch/nation.parquet";
     ScanOptions options = new ScanOptions(/*batchSize*/ 32768);
     try (BufferAllocator allocator = new RootAllocator();
         DatasetFactory datasetFactory =

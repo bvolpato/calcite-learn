@@ -21,9 +21,11 @@ import org.apache.calcite.sql.parser.SqlParseException;
 
 public class L08_SubstraitJoin {
 
+  private static final String BASE_DIR = System.getProperty("user.home");
+
   public static void main(String[] args) {
-    String uriNation = "file:///home/bvolpato/Downloads/tpch/nation.parquet";
-    String uriCustomer = "file:///home/bvolpato/Downloads/tpch/customer.parquet";
+    String uriNation = "file://" + BASE_DIR + "/Downloads/tpch/nation.parquet";
+    String uriCustomer = "file://" + BASE_DIR + "/Downloads/tpch/customer.parquet";
 
     ScanOptions options = new ScanOptions(/*batchSize*/ 32768);
     try (BufferAllocator allocator = new RootAllocator();
