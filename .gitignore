@@ -6,3 +6,9 @@ build
 
 # IntelliJ stuff
 .idea/
+
+# No target folder
+target/
+
+# Binaries
+/app/src/main/cpp/L01/libhello.*

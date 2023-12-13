@@ -6,6 +6,8 @@ import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.IntVector;
 import org.apache.arrow.vector.VarCharVector;
+import org.apache.arrow.vector.compare.TypeEqualsVisitor;
+import org.apache.arrow.vector.compare.VectorEqualsVisitor;
 import org.apache.arrow.vector.complex.ListVector;
 import org.apache.arrow.vector.complex.impl.UnionListWriter;
 import org.apache.arrow.vector.dictionary.Dictionary;
@@ -104,6 +106,70 @@ public class L01_Vectors {
       System.out.print(listVector);
     } catch (Exception e) {
       e.printStackTrace();
+    }
+
+    System.out.println("=============================\nintVector + compare:");
+
+    try (BufferAllocator allocator = new RootAllocator();
+        IntVector intVector = new IntVector("intVector", allocator);
+        IntVector intVector2 = new IntVector("intVector", allocator);
+        IntVector intVector3 = new IntVector("intVector", allocator)) {
+      intVector.allocateNew(3);
+      intVector.set(0, 1);
+      intVector.set(1, 2);
+      intVector.set(2, 3);
+      intVector.setValueCount(3);
+
+      System.out.println(intVector);
+
+      intVector2.allocateNew(3);
+      intVector2.set(0, 1);
+      intVector2.set(1, 2);
+      intVector2.set(2, 3);
+      intVector2.setValueCount(3);
+
+      System.out.println(intVector2);
+
+      intVector3.allocateNew(3);
+      intVector3.set(0, 1);
+      intVector3.set(1, 2);
+      intVector3.set(2, 4);
+      intVector3.setValueCount(3);
+
+      System.out.println(intVector3);
+
+      VectorEqualsVisitor visitor = new VectorEqualsVisitor();
+
+      System.out.println(
+          "intVector x intVector2: "
+              + (intVector.equals(intVector2))
+              + " -- "
+              + visitor.vectorEquals(intVector, intVector2));
+      System.out.println(
+          "intVector x intVector3: "
+              + (intVector.equals(intVector3))
+              + " -- "
+              + visitor.vectorEquals(intVector, intVector3));
+    }
+
+    System.out.println("=============================\nintVector + compute:");
+
+    try (BufferAllocator allocator = new RootAllocator();
+        IntVector intVector = new IntVector("intVector", allocator)) {
+      intVector.allocateNew(3);
+      intVector.set(0, 1);
+      intVector.set(1, 2);
+      intVector.set(2, 3);
+      intVector.setValueCount(3);
+
+      System.out.println(intVector);
+
+      for (int i = 0; i < intVector.getValueCount(); i++) {
+        intVector.set(i, intVector.get(i) + 100);
+      }
+
+      System.out.println(intVector);
+
     }
   }
 }
