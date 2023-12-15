@@ -59,7 +59,7 @@ public class L01_SimplePlan {
       mapTableToArrowReader.put("NATION", readerNation);
 
       String sql = """
-                SELECT n_nationkey, n_name FROM nation
+                SELECT COUNT(*) FROM nation
                 """;
       String nation =
           """

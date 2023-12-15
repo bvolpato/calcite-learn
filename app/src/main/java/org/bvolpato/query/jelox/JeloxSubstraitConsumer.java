@@ -18,9 +18,10 @@
 package org.bvolpato.query.jelox;
 
 import io.substrait.expression.Expression;
-import io.substrait.extension.ImmutableSimpleExtension;
+import io.substrait.extension.SimpleExtension;
 import io.substrait.plan.Plan;
 import io.substrait.plan.ProtoPlanConverter;
+import io.substrait.relation.Aggregate;
 import io.substrait.relation.NamedScan;
 import io.substrait.relation.Project;
 import io.substrait.relation.Rel;
@@ -30,14 +31,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.arrow.memory.BufferAllocator;
-import org.apache.arrow.vector.FieldVector;
-import org.apache.arrow.vector.VectorSchemaRoot;
+import org.apache.arrow.vector.*;
 import org.apache.arrow.vector.ipc.*;
-import org.apache.arrow.vector.types.FloatingPointPrecision;
-import org.apache.arrow.vector.types.pojo.ArrowType;
 import org.apache.arrow.vector.types.pojo.Field;
 import org.apache.arrow.vector.types.pojo.FieldType;
 import org.apache.arrow.vector.types.pojo.Schema;
+import org.apache.arrow.vector.util.TransferPair;
+import org.bvolpato.query.jelox.functions.JeloxAggregationFunction;
+import org.bvolpato.query.jelox.util.FunctionHelper;
+import org.bvolpato.query.jelox.util.TypeHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class JeloxSubstraitConsumer {
   private BufferAllocator allocator;
@@ -50,8 +53,7 @@ public class JeloxSubstraitConsumer {
       io.substrait.proto.Plan protoPlan, Map<String, ArrowReader> namedTables) throws IOException {
 
     // Convert from proto to plan
-    ProtoPlanConverter protoPlanConverter =
-        new ProtoPlanConverter(ImmutableSimpleExtension.ExtensionCollection.builder().build());
+    ProtoPlanConverter protoPlanConverter = new ProtoPlanConverter(SimpleExtension.loadDefaults());
     Plan plan = protoPlanConverter.from(protoPlan);
 
     Plan.Root root = plan.getRoots().get(0);
@@ -78,32 +80,20 @@ public class JeloxSubstraitConsumer {
 
     // If the root is a project, then we can get the expressions
     if (rootInput instanceof Project project) {
-      List<Expression> expressions = project.getExpressions();
-      System.out.println("expressions: " + expressions);
+      return processProjection(project, outputNames, arrowReader);
+    } else if (rootInput instanceof Aggregate aggregate) {
+
+      System.out.println("Aggregate: " + aggregate);
 
       List<Field> schemaFields = new ArrayList<>();
-      for (int i = 0; i < expressions.size(); i++) {
-        Expression expression = expressions.get(i);
-        System.out.println("expression: " + expression);
+
+      for (int i = 0; i < aggregate.getMeasures().size(); i++) {
+        Aggregate.Measure measure = aggregate.getMeasures().get(i);
+        System.out.println("measure: " + measure);
 
         // Get the ArrowType based on the expression type
-        FieldType arrowType = null;
-        if (expression.getType() instanceof Type.I64 i64) {
-          arrowType = maybeNullable(new ArrowType.Int(64, true), expression.getType().nullable());
-        } else if (expression.getType() instanceof Type.I32 i32) {
-          arrowType = maybeNullable(new ArrowType.Int(32, true), expression.getType().nullable());
-        } else if (expression.getType() instanceof Type.FP64 fp64) {
-          arrowType =
-              maybeNullable(
-                  new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE),
-                  expression.getType().nullable());
-        } else if (expression.getType() instanceof Type.Str str) {
-          arrowType = maybeNullable(new ArrowType.Utf8(), expression.getType().nullable());
-        } else if (expression.getType() instanceof Type.FixedChar str) {
-          arrowType = maybeNullable(new ArrowType.Utf8(), expression.getType().nullable());
-        } else {
-          throw new RuntimeException("Unsupported type: " + expression.getType());
-        }
+        Type expressionType = measure.getFunction().getType();
+        FieldType arrowType = TypeHelper.getArrowFieldType(expressionType);
 
         Field field = new Field(outputNames.get(i), arrowType, null);
         schemaFields.add(field);
@@ -112,21 +102,20 @@ public class JeloxSubstraitConsumer {
       Schema arrowSchema = new Schema(schemaFields);
       VectorSchemaRoot vectorSchemaRoot = VectorSchemaRoot.create(arrowSchema, allocator);
 
-      // System.out.println(arrowReader.getVectorSchemaRoot().contentToTSVString());
+      for (int i = 0; i < aggregate.getMeasures().size(); i++) {
+        Aggregate.Measure measure = aggregate.getMeasures().get(i);
 
-      while (arrowReader.loadNextBatch()) {
-        VectorSchemaRoot sourceTable = arrowReader.getVectorSchemaRoot();
+        JeloxAggregationFunction<?> aggregationFunction =
+            FunctionHelper.getAggregationFunction(measure.getFunction());
 
-        for (String outputName : outputNames) {
-          System.out.println("outputName: " + outputName);
+        Object aggregated = aggregationFunction.apply(arrowReader);
+        IntVector vector = (IntVector) vectorSchemaRoot.getVector(i);
 
-          FieldVector vec = vectorSchemaRoot.getVector(outputName);
-
-          FieldVector sourceVector = sourceTable.getVector(outputName);
-          vec.copyFromSafe(0, sourceVector.getValueCount(), sourceVector);
-        }
+        vector.setSafe(0, ((Number) aggregated).intValue());
+        vector.setValueCount(1);
       }
 
+      vectorSchemaRoot.setRowCount(1);
       return vectorSchemaRoot;
     }
 
@@ -169,11 +158,43 @@ public class JeloxSubstraitConsumer {
     //    }
   }
 
-  private FieldType maybeNullable(ArrowType type, boolean nullable) {
-    if (nullable) {
-      return FieldType.nullable(type);
-    } else {
-      return FieldType.notNullable(type);
+  @NotNull
+  private VectorSchemaRoot processProjection(
+      Project project, List<String> outputNames, ArrowReader arrowReader) throws IOException {
+    List<Expression> expressions = project.getExpressions();
+    System.out.println("expressions: " + expressions);
+
+    List<Field> schemaFields = new ArrayList<>();
+    for (int i = 0; i < expressions.size(); i++) {
+      Expression expression = expressions.get(i);
+      System.out.println("expression: " + expression);
+
+      // Get the ArrowType based on the expression type
+      Type expressionType = expression.getType();
+      FieldType arrowType = TypeHelper.getArrowFieldType(expressionType);
+
+      Field field = new Field(outputNames.get(i), arrowType, null);
+      schemaFields.add(field);
     }
+
+    Schema arrowSchema = new Schema(schemaFields);
+    VectorSchemaRoot vectorSchemaRoot = VectorSchemaRoot.create(arrowSchema, allocator);
+
+    // System.out.println(arrowReader.getVectorSchemaRoot().contentToTSVString());
+
+    while (arrowReader.loadNextBatch()) {
+      VectorSchemaRoot sourceTable = arrowReader.getVectorSchemaRoot();
+
+      for (String outputName : outputNames) {
+        FieldVector vec = vectorSchemaRoot.getVector(outputName);
+        FieldVector sourceVector = sourceTable.getVector(outputName);
+        TransferPair transferPair = sourceVector.makeTransferPair(vec);
+        transferPair.splitAndTransfer(0, sourceVector.getValueCount());
+      }
+
+      vectorSchemaRoot.setRowCount(sourceTable.getRowCount());
+    }
+
+    return vectorSchemaRoot;
   }
 }
