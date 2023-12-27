@@ -12,18 +12,24 @@ repositories {
     mavenCentral()
 }
 
+val arrowVersion = "14.0.1"
+val adbcVersion = "0.8.0"
+val calciteVersion = "1.36.0"
+val substraitVersion = "0.23.0"
+
 dependencies {
 
     // Arrow
-    implementation("org.apache.arrow:arrow-vector:14.0.1")
-    implementation("org.apache.arrow:arrow-memory-netty:14.0.1")
-    implementation("org.apache.arrow:arrow-algorithm:14.0.1")
-    implementation("org.apache.arrow:arrow-dataset:14.0.1")
-    implementation("io.substrait:core:0.22.0")
-    implementation("io.substrait:isthmus:0.22.0")
+    implementation("org.apache.arrow:arrow-vector:${arrowVersion}")
+    implementation("org.apache.arrow:arrow-memory-netty:${arrowVersion}")
+    implementation("org.apache.arrow:arrow-algorithm:${arrowVersion}")
+    implementation("org.apache.arrow:arrow-dataset:${arrowVersion}")
+    implementation("org.apache.arrow.adbc:adbc-driver-jdbc:${adbcVersion}")
+    implementation("io.substrait:core:${substraitVersion}")
+    implementation("io.substrait:isthmus:${substraitVersion}")
 
     // Calcite
-    implementation("org.apache.calcite:calcite-core:1.36.0")
+    implementation("org.apache.calcite:calcite-core:${calciteVersion}")
     implementation("org.xerial:sqlite-jdbc:3.44.0.0")
 
     // DuckDB
@@ -33,6 +39,8 @@ dependencies {
     implementation("org.apache.spark:spark-core_2.13:3.5.0")
     implementation("org.apache.spark:spark-sql_2.13:3.5.0")
 
+    // Postgres
+    implementation("org.postgresql:postgresql:42.7.1")
 
     // Misc
     implementation("com.google.guava:guava:32.1.1-jre")
