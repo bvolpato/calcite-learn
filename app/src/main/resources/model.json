@@ -9,7 +9,7 @@
       "operand": {
         "jdbcUser": "",
         "jdbcPassword": "",
-        "jdbcUrl": "jdbc:sqlite:/home/bvolpato/githubworkspace/calcite-learn/app/src/main/resources/hr.sqlite",
+        "jdbcUrl": "jdbc:sqlite:/home/bvolpato/githubworkspace/query-learn/app/src/main/resources/hr.sqlite",
         "jdbcDriver": "org.sqlite.JDBC"
       },
       "tables": [
